@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: scan-graph-api
+    runtime: python
+    plan: free
+    buildCommand: python -m compileall backend
+    startCommand: python -m backend
+    envVars:
+      - key: SCAN_GRAPH_HOST
+        value: 0.0.0.0

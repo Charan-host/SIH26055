@@ -262,8 +262,8 @@ class Handler(BaseHTTPRequestHandler):
         return self.send(404, {'error': 'not found'})
 
 def main():
-    host = os.environ.get('SCAN_GRAPH_HOST', '127.0.0.1')
-    port = int(os.environ.get('SCAN_GRAPH_PORT', '8000'))
+    host = os.environ.get('SCAN_GRAPH_HOST', '0.0.0.0')
+    port = int(os.environ.get('PORT', os.environ.get('SCAN_GRAPH_PORT', '8000')))
     server = ThreadingHTTPServer((host, port), Handler)
     print(f'SCAN-GRAPH API and console: http://{host}:{port}', flush=True)
     server.serve_forever()

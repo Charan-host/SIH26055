@@ -14,6 +14,12 @@ The API and primary research console are served at `http://localhost:8000`. The 
 
 Alternatively, open `frontend/index.html` with VS Code Live Server. It uses the same centralized API base, `http://localhost:8000`. If the backend cannot be reached, the page visibly switches to **LOCAL SIMULATION MODE** and runs a deterministic browser simulation; use the status button to retry and replay an active local experiment against the live backend.
 
+## Deploy with Vercel and Render
+
+Deploy the frontend to Vercel with `frontend` as the project root directory, `npm run build` as the build command, and `dist` as the output directory. In the Vercel project settings, add `SCAN_GRAPH_API_BASE` with the public HTTPS URL of the Render API (for example, `https://scan-graph-api.onrender.com`), then redeploy so Vite includes it in the frontend build.
+
+Deploy the backend to Render from the repository root using the included `render.yaml` blueprint. After it is live, check `https://<your-render-service>.onrender.com/api/health`, then use that same service URL for `SCAN_GRAPH_API_BASE` in Vercel. Render's injected `PORT` is used automatically. The API currently stores experiments in memory, so they do not persist across service restarts or instance replacements.
+
 Create a scenario, generate its preview, start the experiment, then use **STEP SCAN** in the Receiver Console. Hypotheses, evidence, transitions, and baseline comparisons all use the active scenario and seed.
 
 ## Frontend
