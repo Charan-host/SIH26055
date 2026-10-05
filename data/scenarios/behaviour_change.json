@@ -1,0 +1,1 @@
+{"id":"SCN-BC-01","name":"Behaviour Change","seed":7,"horizon":100,"bands":10,"receiver_bandwidth_mhz":10,"emitters":[{"id":"E1","kind":"behavior_change","old":[2,6,9],"new":[2,4,8],"change_time":40,"period":12,"width":5,"label":"Agile transmitter"},{"id":"E2","kind":"rare","band":8,"period":20,"phase":3,"width":3,"probability":0.12,"label":"Rare beacon"}]}

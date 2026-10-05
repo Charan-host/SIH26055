@@ -1,0 +1,1681 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#0b171d" />
+    <meta name="color-scheme" content="dark light" />
+    <title>SCAN-GRAPH | Adaptive Spectrum Scanning</title>
+    <script>
+      try {
+        document.documentElement.dataset.theme = localStorage.getItem("scanGraphTheme") || "dark";
+      } catch {
+        document.documentElement.dataset.theme = "dark";
+      }
+    </script>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#home" aria-label="SCAN-GRAPH home"
+          ><span class="brand-mark">SG</span
+          ><span
+            ><strong>SCAN-GRAPH</strong><small>RESEARCH PROTOTYPE</small></span
+          ></a
+        >
+        <div class="nav-label">RESEARCH WORKSPACE</div>
+        <nav class="side-nav" aria-label="Main navigation" role="tablist">
+          <button
+            class="nav-item active"
+            role="tab"
+            aria-selected="true"
+            tabindex="0"
+            data-tab="home"
+            aria-label="Home"
+            title="Home"
+          >
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m3 10 9-7 9 7v10H3zM9 20v-6h6v6" /></svg
+            ><span>Home</span>
+          </button>
+          <button
+            class="nav-item"
+            role="tab"
+            aria-selected="false"
+            tabindex="-1"
+            data-tab="scenario"
+            aria-label="Scenario"
+            title="Scenario"
+          >
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 4h16v16H4zM9 4v16m6-16v16" /></svg
+            ><span>Scenario</span>
+          </button>
+          <button
+            class="nav-item"
+            role="tab"
+            aria-selected="false"
+            tabindex="-1"
+            data-tab="console"
+            aria-label="Receiver Console"
+            title="Receiver Console"
+          >
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 12h3l3-8 5 16 3-8h4" /></svg
+            ><span>Receiver Console</span>
+          </button>
+          <button
+            class="nav-item"
+            role="tab"
+            aria-selected="false"
+            tabindex="-1"
+            data-tab="hypotheses"
+            aria-label="Hypothesis Engine"
+            title="Hypothesis Engine"
+          >
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 1v4m11 7h-4" /></svg
+            ><span>Hypothesis Engine</span>
+          </button>
+          <button
+            class="nav-item"
+            role="tab"
+            aria-selected="false"
+            tabindex="-1"
+            data-tab="certificate"
+            aria-label="Evidence Certificate"
+            title="Evidence Certificate"
+          >
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 3h11l3 3v15H5zM16 3v4h4M8 11h8M8 15h8M8 19h5" /></svg
+            ><span>Evidence Certificate</span>
+          </button>
+          <button
+            class="nav-item"
+            role="tab"
+            aria-selected="false"
+            tabindex="-1"
+            data-tab="experiments"
+            aria-label="Baseline Experiments"
+            title="Baseline Experiments"
+          >
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 20V9m5 11V4m6 16v-7m5 7V2M2 21h20" /></svg
+            ><span>Baseline Experiments</span>
+          </button>
+        </nav>
+        <div class="sidebar-foot">
+          <span class="status-dot"></span
+          ><span
+            ><b>Receiver status</b
+            ><small id="sidebarBackendStatus">Connecting to API</small></span
+          >
+        </div>
+      </aside>
+      <div class="workspace">
+        <header class="topbar">
+          <div class="mobile-brand">
+            SCAN-GRAPH <span>/ Adaptive Spectrum Scanning</span>
+          </div>
+          <div class="top-context">
+            ADAPTIVE SPECTRUM SCANNING <span>·</span> EVIDENCE-GUIDED RECEIVER
+          </div>
+          <div class="status-context">
+            <span id="statusScenario">Behaviour Change</span
+            ><span>SEED <b id="statusSeed">7</b></span>
+          </div>
+          <div class="top-status">
+            <button
+              id="backendMode"
+              class="backend-mode"
+              type="button"
+              title="Click to check backend connection"
+            >
+              CONNECTING API</button
+            ><span id="clock">0.0 ms</span
+            ><button
+              id="themeToggle"
+              class="icon-button"
+              type="button"
+              aria-label="Switch to light theme"
+              title="Switch theme"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" />
+                <path
+                  d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"
+                />
+              </svg>
+            </button>
+          </div>
+        </header>
+        <div id="backendNotice" class="backend-notice hidden" role="status">
+          <b>BACKEND OFFLINE</b
+          ><span
+            >Local demo mode is active. Live data will resume when the API is
+            available.</span
+          ><button type="button" data-retry-backend>Retry</button>
+        </div>
+        <div
+          id="requestLoading"
+          class="request-loading hidden"
+          aria-hidden="true"
+        ></div>
+        <div
+          id="requestToast"
+          class="request-toast hidden"
+          role="status"
+          aria-live="polite"
+        ></div>
+        <main id="main-content" tabindex="-1">
+          <section id="home" class="view home-view">
+            <div class="hero">
+              <div class="hero-copy">
+                <div class="eyebrow">
+                  <span class="eyebrow-line"></span>SCAN-GRAPH · ADAPTIVE
+                  SPECTRUM SCANNING
+                </div>
+                <h1>
+                  We don't just ask where to scan,
+                  <span>we ask what the next observation can rule out.</span>
+                </h1>
+                <p class="hero-description">
+                  A reproducible receiver experiment that turns each scan into
+                  evidence, updates what remains plausible, and adapts when
+                  emitter behaviour changes.
+                </p>
+                <div class="hero-actions">
+                  <button id="runGuidedDemo" class="button button-primary">
+                    Run Guided Demo <span>&#8594;</span>
+                  </button>
+                </div>
+                <div class="hero-note">
+                  <span class="status-dot"></span> BEHAVIOUR CHANGE · SEED 7 ·
+                  40 MS CHANGE POINT
+                </div>
+              </div>
+              <div
+                class="hero-visual"
+                aria-label="Illustration of spectrum activity and adaptive scan scheduling"
+              >
+                <div class="visual-head">
+                  <span>SPECTRUM OBSERVATION</span
+                  ><span class="visual-live"><i></i> LIVE MODEL</span>
+                </div>
+                <div class="visual-subhead">
+                  Frequency band <b>×</b> observation time
+                </div>
+                <div class="spectrum-chart">
+                  <div class="chart-y">
+                    <span>B10</span><span>B8</span><span>B6</span><span>B4</span
+                    ><span>B2</span>
+                  </div>
+                  <div class="chart-main">
+                    <div class="chart-grid"></div>
+                    <i class="signal s1"></i><i class="signal s2"></i
+                    ><i class="signal s3"></i><i class="signal s4"></i
+                    ><i class="signal s5"></i><i class="signal s6"></i>
+                    <i class="scan-frame frame-one"></i
+                    ><i class="scan-frame frame-two"></i
+                    ><i class="change-line"></i>
+                    <span class="change-label">BEHAVIOUR CHANGE</span>
+                  </div>
+                </div>
+                <div class="chart-x">
+                  <span>0 ms</span><span>25</span><span>50</span><span>75</span
+                  ><span>100 ms</span>
+                </div>
+                <div class="chart-legend">
+                  <span><i class="legend-activity"></i> Expected activity</span
+                  ><span><i class="legend-scan"></i> Receiver scan</span
+                  ><span><i class="legend-change"></i> Change point</span>
+                </div>
+                <div class="visual-foot">
+                  <span>LEARNED SEQUENCE</span
+                  ><b>B2 <em>→</em> B6 <em>→</em> B9</b
+                  ><span class="sequence-divider">ADAPTS TO</span
+                  ><b>B2 <em>→</em> B4 <em>→</em> B8</b>
+                </div>
+              </div>
+            </div>
+
+            <section class="section-block pipeline-block">
+              <div class="section-heading">
+                <div>
+                  <div class="eyebrow">THE RESEARCH LOOP</div>
+                  <h2>From observation to adaptation</h2>
+                </div>
+                <p>
+                  Each scan updates evidence and changes what the receiver
+                  should investigate next.
+                </p>
+              </div>
+              <div class="pipeline">
+                <article>
+                  <span class="step-number">01</span>
+                  <h3>OBSERVE</h3>
+                  <p>Capture the current simulated spectrum state.</p>
+                </article>
+                <b class="pipe-arrow">→</b>
+                <article>
+                  <span class="step-number">02</span>
+                  <h3>REASON</h3>
+                  <p>Evaluate temporal relevance and hypothesis confidence.</p>
+                </article>
+                <b class="pipe-arrow">→</b>
+                <article>
+                  <span class="step-number">03</span>
+                  <h3>SELECT</h3>
+                  <p>Choose the next receiver action from candidate scans.</p>
+                </article>
+                <b class="pipe-arrow">→</b>
+                <article>
+                  <span class="step-number">04</span>
+                  <h3>SCAN</h3>
+                  <p>Observe the selected band for a chosen dwell.</p>
+                </article>
+                <b class="pipe-arrow">→</b>
+                <article>
+                  <span class="step-number">05</span>
+                  <h3>UPDATE</h3>
+                  <p>Process HIT or MISS and the strength of evidence.</p>
+                </article>
+                <b class="pipe-arrow">→</b>
+                <article>
+                  <span class="step-number">06</span>
+                  <h3>LEARN</h3>
+                  <p>Update cross-band transition relationships.</p>
+                </article>
+                <b class="pipe-arrow">→</b>
+                <article>
+                  <span class="step-number">07</span>
+                  <h3>ADAPT</h3>
+                  <p>Adjust exploration when behaviour changes.</p>
+                </article>
+              </div>
+            </section>
+
+            <section class="section-block">
+              <div class="section-heading">
+                <div>
+                  <div class="eyebrow">CORE RESEARCH CAPABILITIES</div>
+                  <h2>Evidence shapes the next scan</h2>
+                </div>
+                <p>
+                  Scheduling combines learned structure with safeguards against
+                  stale or incomplete knowledge.
+                </p>
+              </div>
+              <div class="feature-grid">
+                <article class="feature-card">
+                  <span class="feature-index">01 / INFERENCE</span>
+                  <h3>Conditional non-detection</h3>
+                  <p>
+                    A MISS is not automatically absence. Temporal overlap
+                    determines how informative the observation is.
+                  </p>
+                  <div class="mini-logic">
+                    <span>LOW OVERLAP</span><b>→</b
+                    ><strong>WEAK EVIDENCE</strong>
+                  </div>
+                </article>
+                <article class="feature-card">
+                  <span class="feature-index">02 / LEARNING</span>
+                  <h3>Online transition learning</h3>
+                  <p>
+                    Scan history reveals cross-band sequences as emitter
+                    activity moves through the spectrum.
+                  </p>
+                  <div class="mini-logic">
+                    <strong>B2</strong><b>→</b><strong>B6</strong><b>→</b
+                    ><strong>B9</strong>
+                  </div>
+                </article>
+                <article class="feature-card">
+                  <span class="feature-index">03 / SCHEDULING</span>
+                  <h3>Confidence-guided scheduling</h3>
+                  <p>
+                    Transition support and evidence confidence help prioritize
+                    useful candidate scans.
+                  </p>
+                  <div class="mini-logic">
+                    <span>SUPPORT + EVIDENCE</span><b>→</b
+                    ><strong>PRIORITY</strong>
+                  </div>
+                </article>
+                <article class="feature-card">
+                  <span class="feature-index">04 / COVERAGE</span>
+                  <h3>Discovery protection</h3>
+                  <p>
+                    Discovery priority gives neglected bands a chance to
+                    challenge familiar patterns.
+                  </p>
+                  <div class="mini-logic">
+                    <span>UNOBSERVED BAND</span><b>→</b
+                    ><strong>PRIORITY RISES</strong>
+                  </div>
+                </article>
+                <article class="feature-card">
+                  <span class="feature-index">05 / MEMORY</span>
+                  <h3>Evidence decay</h3>
+                  <p>
+                    Old confidence fades over time so yesterday’s pattern does
+                    not dominate today’s decisions.
+                  </p>
+                  <div class="mini-logic">
+                    <span>STALE EVIDENCE</span><b>→</b><strong>DECAY</strong>
+                  </div>
+                </article>
+                <article class="feature-card recovery-card">
+                  <span class="feature-index">06 / RECOVERY</span>
+                  <h3>Behaviour-change recovery</h3>
+                  <p>
+                    Detect a changed pattern, explore uncertain bands, and
+                    update the transition model.
+                  </p>
+                  <div class="recovery-sequence">
+                    <span>CONFIDENCE <b>↓</b></span
+                    ><span>EXPLORATION <b>↑</b></span
+                    ><span>GRAPH <b>↻</b></span>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section class="section-block architecture-block">
+              <div class="section-heading">
+                <div>
+                  <div class="eyebrow">SYSTEM ARCHITECTURE</div>
+                  <h2>How an experiment produces a decision</h2>
+                </div>
+                <p>
+                  Observations move through a traceable chain from simulated
+                  emitter activity to a new scan action.
+                </p>
+              </div>
+              <div class="architecture-flow">
+                <div class="flow-column">
+                  <span>EMITTER SCENARIO</span><i>↓</i
+                  ><span>SPECTRUM STATE</span><i>↓</i
+                  ><span>RECEIVER OBSERVATION</span><i>↓</i
+                  ><span>HIT / MISS</span>
+                </div>
+                <div class="flow-column">
+                  <span>TEMPORAL OVERLAP</span><i>↓</i
+                  ><span>HYPOTHESIS UPDATE</span><i>↓</i
+                  ><span>CANDIDATE ACTIONS</span><i>↓</i
+                  ><span>ADAPTIVE SCHEDULER</span>
+                </div>
+                <div class="flow-column">
+                  <span>NEXT SCAN</span><i>↓</i><span>TRANSITION GRAPH</span
+                  ><i>↓</i><span>BEHAVIOUR CHANGE</span><i>↓</i
+                  ><span>EXPLORATION &amp; RECOVERY</span>
+                </div>
+                <div class="flow-outcome">
+                  <span class="outcome-mark">↗</span
+                  ><b>UPDATED<br />SCHEDULING</b
+                  ><small>Evidence informs the next receiver action.</small>
+                </div>
+              </div>
+            </section>
+
+            <section class="section-block demo-block">
+              <div class="demo-copy">
+                <div class="eyebrow">THE PROTOTYPE DEMONSTRATION</div>
+                <h2>Can the receiver recover when the pattern changes?</h2>
+                <p>
+                  The experiment begins with a repeated cross-band sequence. At
+                  the configured change point, the emitter moves to a new
+                  pattern and the receiver must relearn it from evidence.
+                </p>
+                <button class="text-button" data-tab="scenario">
+                  Configure this experiment <span>→</span>
+                </button>
+              </div>
+              <div class="demo-track">
+                <div class="demo-state">
+                  <span class="demo-label">INITIAL BEHAVIOUR · LEARNED</span>
+                  <div class="band-sequence">
+                    <b>B2</b><i>→</i><b>B6</b><i>→</i><b>B9</b>
+                  </div>
+                  <small>Transition support guides the next scan.</small>
+                </div>
+                <div class="change-event">
+                  <span>!</span><b>BEHAVIOUR<br />CHANGE DETECTED</b
+                  ><small>Evidence no longer fits the learned pattern</small>
+                </div>
+                <div class="demo-state new-state">
+                  <span class="demo-label">NEW BEHAVIOUR · DISCOVERED</span>
+                  <div class="band-sequence">
+                    <b>B2</b><i>→</i><b>B4</b><i>→</i><b>B8</b>
+                  </div>
+                  <small
+                    >Exploration reveals and updates new transitions.</small
+                  >
+                </div>
+                <div class="recovery-steps">
+                  <span>STALE CONFIDENCE <b>↓</b></span
+                  ><span>EXPLORATION <b>↑</b></span
+                  ><span>NEW TRANSITIONS <b>+</b></span
+                  ><span>SCHEDULER ADAPTS <b>↻</b></span>
+                </div>
+              </div>
+            </section>
+
+            <section class="quick-start">
+              <div>
+                <div class="eyebrow">READY TO INVESTIGATE?</div>
+                <h2>Run the research loop yourself.</h2>
+                <p>
+                  Configure an emitter scenario, observe adaptive scan
+                  decisions, then compare measured outcomes.
+                </p>
+              </div>
+              <div class="quick-steps">
+                <article>
+                  <b>01</b><strong>CREATE SCENARIO</strong
+                  ><span>Set emitter behaviour and receiver constraints.</span>
+                </article>
+                <article>
+                  <b>02</b><strong>RUN EXPERIMENT</strong
+                  ><span
+                    >Track scans, evidence updates, and graph learning.</span
+                  >
+                </article>
+                <article>
+                  <b>03</b><strong>ANALYZE RESULTS</strong
+                  ><span>Compare SCAN-GRAPH with baseline strategies.</span>
+                </article>
+              </div>
+              <button class="button button-primary" data-tab="scenario">
+                Start Experiment <span>→</span>
+              </button>
+            </section>
+            <footer>
+              SCAN-GRAPH · RESEARCH PROTOTYPE
+              <span>DETERMINISTIC SIMULATION · EVIDENCE-GUIDED SCHEDULING</span>
+            </footer>
+          </section>
+
+          <section
+            id="guidedDemo"
+            class="guided-demo hidden"
+            aria-label="Guided experiment demonstration"
+          >
+            <div class="guided-progress">
+              <span class="guided-kicker">GUIDED DEMO</span
+              ><b id="guidedStepLabel">Ready</b
+              ><span id="guidedStepCount">0 / 3</span>
+            </div>
+            <p id="guidedCallout" aria-live="polite">
+              Behaviour Change · seed 7. Follow the evidence as the emitter
+              changes its pattern at 40 ms.
+            </p>
+            <div class="guided-controls">
+              <button id="guidedPause" class="button button-secondary" type="button">Pause</button>
+              <button id="guidedNext" class="button button-primary" type="button">Next</button>
+              <button id="guidedSkip" class="button button-quiet" type="button">Skip</button>
+            </div>
+          </section>
+
+          <section id="scenario" class="view scenario-view hidden">
+            <div class="page-intro">
+              <div class="eyebrow">CONTROLLED EXPERIMENT DESIGN</div>
+              <h1>Scenario Configuration</h1>
+              <p>
+                Define the emitter behaviour, receiver constraints and
+                experiment conditions before starting the SCAN-GRAPH experiment.
+              </p>
+            </div>
+            <nav class="scenario-wizard" aria-label="Scenario setup steps">
+              <button type="button" class="wizard-step is-current" data-wizard-step="1" aria-current="step"><b>01</b><span>Emitter behaviour</span></button>
+              <button type="button" class="wizard-step" data-wizard-step="2"><b>02</b><span>Receiver limits</span></button>
+              <button type="button" class="wizard-step" data-wizard-step="3"><b>03</b><span>Scheduler options</span></button>
+            </nav>
+            <form id="scenarioForm" data-step="1">
+              <section class="config-panel" data-wizard-panel="1">
+                <div class="config-heading">
+                  <span class="config-index">01</span>
+                  <div>
+                    <div class="eyebrow">EXPERIMENT DEFINITION</div>
+                    <h2>Experiment Setup</h2>
+                  </div>
+                </div>
+                <div class="field-grid five-fields">
+                  <label
+                    >Experiment Name<input
+                      id="experimentName"
+                      type="text"
+                      value="Behaviour Change Experiment"
+                      required /></label
+                  ><label
+                    >Random Seed<input
+                      id="configSeed"
+                      type="number"
+                      value="7"
+                      min="0"
+                      required /></label
+                  ><label
+                    >Frequency Bands<input
+                      id="bandCount"
+                      type="number"
+                      value="10"
+                      min="3"
+                      max="40"
+                      required /></label
+                  ><label
+                    >Number of Emitters<input
+                      id="emitterCount"
+                      type="number"
+                      value="1"
+                      min="1"
+                      max="20"
+                      required /></label
+                  ><label
+                    >Simulation Duration<input
+                      id="duration"
+                      type="number"
+                      value="100"
+                      min="20"
+                      max="10000"
+                      required
+                    /><span class="input-unit">ms</span></label
+                  >
+                </div>
+                <details class="advanced-fields">
+                  <summary>Advanced experiment settings</summary>
+                  <div class="field-grid three-fields setup-extra">
+                    <label>Time Slots<input id="timeSlots" type="number" value="10" min="1" required /></label>
+                    <label>Initial Band<select id="initialBand"></select></label>
+                    <label>Evidence Decay Rate<input id="evidenceDecayRate" type="number" value="0.78" min="0.1" max="1" step="0.01" required /></label>
+                  </div>
+                </details>
+              </section>
+              <div class="scenario-layout">
+                <div class="scenario-main">
+                  <section class="config-panel" data-wizard-panel="1">
+                    <div class="config-heading">
+                      <span class="config-index">02</span>
+                      <div>
+                        <div class="eyebrow">GROUND-TRUTH MODEL</div>
+                        <h2>Select Emitter Behaviour</h2>
+                        <p class="section-subtitle">
+                          Choose the emitter behaviour that will be used to
+                          generate the experiment timeline.
+                        </p>
+                      </div>
+                    </div>
+                    <fieldset class="scenario-types">
+                      <legend class="sr-only">Scenario type</legend>
+                      <label class="scenario-choice"
+                        ><input
+                          type="radio"
+                          name="scenarioType"
+                          value="Periodic"
+                        /><span class="choice-symbol">&#8767;</span
+                        ><b>Periodic</b
+                        ><small
+                          >Emitter appears at regular time intervals on a
+                          predictable frequency band.</small
+                        ><span class="selection-indicator">SELECT</span></label
+                      ><label class="scenario-choice"
+                        ><input
+                          type="radio"
+                          name="scenarioType"
+                          value="Duty-Cycled"
+                        /><span class="choice-symbol">&#9638;</span
+                        ><b>Duty-Cycled</b
+                        ><small
+                          >Regular active and inactive intervals with a
+                          configurable duty cycle.</small
+                        ><span class="selection-indicator">SELECT</span></label
+                      ><label class="scenario-choice"
+                        ><input
+                          type="radio"
+                          name="scenarioType"
+                          value="Frequency Agile"
+                        /><span class="choice-symbol">&#8761;</span
+                        ><b>Frequency Agile</b
+                        ><small
+                          >The emitter moves between frequency bands over
+                          time.</small
+                        ><span class="selection-indicator">SELECT</span></label
+                      ><label class="scenario-choice"
+                        ><input
+                          type="radio"
+                          name="scenarioType"
+                          value="Rare Emitter"
+                        /><span class="choice-symbol">&#9673;</span
+                        ><b>Rare Emitter</b
+                        ><small
+                          >Low probability of activity creates a discovery
+                          challenge.</small
+                        ><span class="selection-indicator">SELECT</span></label
+                      ><label class="scenario-choice selected"
+                        ><input
+                          type="radio"
+                          name="scenarioType"
+                          value="Behaviour Change"
+                          checked
+                        /><span class="choice-symbol">&#8635;</span
+                        ><b>Behaviour Change</b
+                        ><small
+                          >Emitter transitions to a new cross-band
+                          pattern.</small
+                        ><span class="selection-indicator"
+                          >SELECTED</span
+                        ></label
+                      >
+                    </fieldset>
+                    <div class="dynamic-config">
+                      <div id="config-periodic" class="type-config hidden">
+                        <div class="type-config-head">
+                          <span>PERIODIC EMITTER MODEL</span
+                          ><b>Regular interval schedule</b>
+                        </div>
+                        <div class="field-grid four-fields">
+                          <label
+                            >Frequency Band<select
+                              id="periodicBand"
+                            ></select></label
+                          ><label
+                            >Period<input
+                              id="periodicPeriod"
+                              type="number"
+                              value="20"
+                              min="2"
+                              required
+                            /><span class="input-unit">ms</span></label
+                          ><label
+                            >Active Duration<input
+                              id="periodicDwell"
+                              type="number"
+                              value="5"
+                              min="1"
+                              required
+                            /><span class="input-unit">ms</span></label
+                          ><label
+                            >Start Time<input
+                              id="periodicStart"
+                              type="number"
+                              value="0"
+                              min="0"
+                              required
+                            /><span class="input-unit">ms</span></label
+                          >
+                        </div>
+                        <div class="type-preview-label">
+                          SEQUENCE PREVIEW
+                          <b id="periodicSequence"
+                            >B2 &#8594; B2 &#8594; B2 &#8594; B2</b
+                          >
+                        </div>
+                        <p class="type-explanation">
+                          Periodic behaviour creates a predictable emitter
+                          pattern that can be learned from repeated
+                          observations.
+                        </p>
+                      </div>
+                      <div id="config-duty" class="type-config hidden">
+                        <div class="type-config-head">
+                          <span>DUTY-CYCLED EMITTER MODEL</span
+                          ><b>Active and inactive intervals</b>
+                        </div>
+                        <div class="field-grid five-fields">
+                          <label
+                            >Frequency Band<select
+                              id="dutyBand"
+                            ></select></label
+                          ><label
+                            >Cycle Period<input
+                              id="dutyPeriod"
+                              type="number"
+                              value="20"
+                              min="2"
+                              required
+                            /><span class="input-unit">ms</span></label
+                          ><label
+                            >Active Duration<input
+                              id="dutyDwell"
+                              type="number"
+                              value="5"
+                              min="1"
+                              required
+                            /><span class="input-unit">ms</span></label
+                          ><label
+                            >Duty Cycle<input
+                              id="dutyPercent"
+                              type="number"
+                              value="25"
+                              min="1"
+                              max="99"
+                              required
+                            /><span class="input-unit">%</span></label
+                          ><label
+                            >Start Time<input
+                              id="dutyStart"
+                              type="number"
+                              value="0"
+                              min="0"
+                              required
+                            /><span class="input-unit">ms</span></label
+                          >
+                        </div>
+                        <div class="type-preview-label">
+                          CYCLE PREVIEW
+                          <b>ACTIVE &#8594; IDLE &#8594; ACTIVE &#8594; IDLE</b>
+                        </div>
+                        <p class="type-explanation">
+                          The emitter repeatedly switches between active and
+                          inactive states.
+                        </p>
+                      </div>
+                      <div id="config-agile" class="type-config hidden">
+                        <div class="type-config-head">
+                          <span>FREQUENCY AGILE EMITTER MODEL</span
+                          ><b>Cross-band transition sequence</b>
+                        </div>
+                        <div class="field-grid three-fields">
+                          <label
+                            >Start Band<select id="agileStart"></select></label
+                          ><label
+                            >Hop Interval<input
+                              id="agileInterval"
+                              type="number"
+                              value="10"
+                              min="1"
+                              required
+                            /><span class="input-unit">ms</span></label
+                          ><div class="band-picker"><span class="field-label">Available Bands</span><div id="agileBandChips" class="band-chips" role="group" aria-label="Available emitter bands"></div><select id="agileBands" multiple class="sr-only" tabindex="-1" aria-hidden="true"></select></div>
+                        </div>
+                        <fieldset class="pattern-options">
+                          <legend>Hop Pattern</legend>
+                          <label
+                            ><input
+                              type="radio"
+                              name="hopPattern"
+                              value="sequential"
+                              checked
+                            />Sequential</label
+                          ><label
+                            ><input
+                              type="radio"
+                              name="hopPattern"
+                              value="random"
+                            />Random</label
+                          ><label
+                            ><input
+                              type="radio"
+                              name="hopPattern"
+                              value="custom"
+                            />Custom</label
+                          >
+                        </fieldset>
+                        <label
+                          id="customSequenceWrap"
+                          class="custom-sequence hidden"
+                          >Custom sequence<input
+                            id="customSequence"
+                            type="text"
+                            value="B2, B6, B4, B8"
+                            aria-describedby="customSequenceHint"
+                          /><span id="customSequenceHint" class="field-hint"
+                            >Comma-separated bands, for example B2, B6, B4,
+                            B8.</span
+                          ></label
+                        >
+                        <div id="agileExample" class="type-preview-label">
+                          HOP SEQUENCE
+                          <b>B2 &#8594; B6 &#8594; B4 &#8594; B8 &#8594; B2</b>
+                        </div>
+                        <p class="type-explanation">
+                          The emitter changes frequency over time. SCAN-GRAPH
+                          must learn cross-band transitions instead of treating
+                          each band independently.
+                        </p>
+                      </div>
+                      <div id="config-rare" class="type-config hidden">
+                        <div class="type-config-head">
+                          <span>RARE EMITTER MODEL</span
+                          ><b>Low probability of activity</b>
+                        </div>
+                        <div class="field-grid five-fields">
+                          <label
+                            >Target Band<select id="rareBand"></select></label
+                          ><label
+                            >Activity Probability<input
+                              id="rareProbability"
+                              type="number"
+                              value="10"
+                              min="1"
+                              max="100"
+                              required
+                            /><span class="input-unit">%</span></label
+                          ><label
+                            >Observation Window<input
+                              id="rareWindow"
+                              type="number"
+                              value="100"
+                              min="1"
+                              required
+                            /><span class="input-unit">ms</span></label
+                          ><label
+                            >Expected Events<input
+                              id="rareExpected"
+                              type="number"
+                              value="1"
+                              min="1"
+                              max="100"
+                              required /></label
+                          ><label
+                            >Minimum Discovery Priority<input
+                              type="text"
+                              value="HIGH"
+                              readonly
+                          /></label>
+                        </div>
+                        <div class="rare-preview">
+                          <strong>MOST OF TIMELINE &middot; NO ACTIVITY</strong>
+                          <div class="rare-event-preview">
+                            <span>OCCASIONAL EVENT</span
+                            ><b id="rareEventLabel">B7 &#8594; ACTIVE</b>
+                          </div>
+                        </div>
+                        <p class="type-explanation">
+                          Rare emitters create a discovery challenge because
+                          reward-driven scheduling may repeatedly prioritize
+                          frequently observed bands.
+                        </p>
+                      </div>
+                      <div id="config-change" class="type-config">
+                        <div class="change-panels">
+                          <div class="pattern-config">
+                            <div class="type-config-head">
+                              <span>INITIAL BEHAVIOUR</span
+                              ><b>Learned transition structure</b>
+                            </div>
+                            <div class="pattern-display">
+                              B2 &#8594; B6 &#8594; B9
+                            </div>
+                            <div class="field-grid two-fields">
+                              <label
+                                >Period<input
+                                  id="changeOldPeriod"
+                                  type="number"
+                                  value="10"
+                                  min="2"
+                                  required
+                                /><span class="input-unit">ms</span></label
+                              ><label
+                                >Dwell<input
+                                  id="changeOldDwell"
+                                  type="number"
+                                  value="5"
+                                  min="1"
+                                  required
+                                /><span class="input-unit">ms</span></label
+                              >
+                            </div>
+                          </div>
+                          <div class="change-point-box">
+                            <label
+                              >BEHAVIOUR CHANGE &middot; Change Point<input
+                                id="changePoint"
+                                type="number"
+                                min="1"
+                                max="99"
+                                value="40"
+                                required
+                              /><span class="input-unit">ms</span></label
+                            >
+                            <div class="change-marker">PATTERN CHANGE</div>
+                          </div>
+                          <div class="pattern-config new-pattern-config">
+                            <div class="type-config-head">
+                              <span>NEW BEHAVIOUR</span
+                              ><b>Pattern to discover</b>
+                            </div>
+                            <div class="pattern-display">
+                              B2 &#8594; B4 &#8594; B8
+                            </div>
+                            <div class="field-grid two-fields">
+                              <label
+                                >Period<input
+                                  id="changeNewPeriod"
+                                  type="number"
+                                  value="10"
+                                  min="2"
+                                  required
+                                /><span class="input-unit">ms</span></label
+                              ><label
+                                >Dwell<input
+                                  id="changeNewDwell"
+                                  type="number"
+                                  value="5"
+                                  min="1"
+                                  required
+                                /><span class="input-unit">ms</span></label
+                              >
+                            </div>
+                          </div>
+                        </div>
+                        <p class="type-explanation">
+                          The experiment tests whether SCAN-GRAPH can recognize
+                          that previously learned relationships have become
+                          unreliable, increase exploration, discover the new
+                          transition structure and recover scheduling
+                          performance.
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+                  <section class="config-panel preview-panel">
+                    <div class="config-heading">
+                      <span class="config-index">03</span>
+                      <div>
+                        <div class="eyebrow">
+                          GENERATED FROM CURRENT SETTINGS
+                        </div>
+                        <h2>Live Scenario Preview</h2>
+                      </div>
+                      <span id="previewScenarioLabel" class="preview-tag"
+                        >BEHAVIOUR CHANGE</span
+                      >
+                    </div>
+                    <div id="scenarioPreview" class="scenario-preview">
+                      <p class="preview-wait">
+                        Building an experiment timeline from the selected
+                        emitter model...
+                      </p>
+                    </div>
+                    <div id="previewPatterns" class="preview-patterns">
+                      <div>
+                        <small>INITIAL PATTERN</small
+                        ><b id="previewInitialPattern"
+                          >B2 &#8594; B6 &#8594; B9</b
+                        >
+                      </div>
+                      <div class="preview-change">
+                        <small>BEHAVIOUR CHANGE</small
+                          ><b id="previewChangeTime">40 ms</b>
+                      </div>
+                      <div>
+                        <small>NEW PATTERN</small
+                        ><b id="previewNewPattern">B2 &#8594; B4 &#8594; B8</b>
+                      </div>
+                    </div>
+                    <div class="preview-legend">
+                      <span
+                        ><i class="expected-swatch"></i> Expected activity</span
+                      ><span
+                        ><i class="change-swatch"></i> Behaviour change</span
+                      ><span
+                        ><i class="scan-swatch"></i> Receiver scan window</span
+                      ><span><i class="hit-swatch"></i> Recorded HIT</span
+                      ><span><i class="miss-swatch"></i> Recorded MISS</span>
+                    </div>
+                  </section>
+                </div>
+                <aside class="scenario-side">
+                  <section class="config-panel summary-panel">
+                    <div class="config-heading">
+                      <div>
+                        <div class="eyebrow">CONFIGURATION SNAPSHOT</div>
+                        <h2>Experiment Summary</h2>
+                      </div>
+                    </div>
+                    <dl class="summary-list">
+                      <div>
+                        <dt>Experiment</dt>
+                        <dd id="summaryName">Behaviour Change Experiment</dd>
+                      </div>
+                      <div>
+                        <dt>Random Seed</dt>
+                        <dd id="summarySeed">7</dd>
+                      </div>
+                      <div>
+                        <dt>Noise Level</dt>
+                        <dd id="summaryNoise">0.05</dd>
+                      </div>
+                      <div>
+                        <dt>False Alarm Probability</dt>
+                        <dd id="summaryFalseAlarm">0.01</dd>
+                      </div>
+                      <div>
+                        <dt>Receiver Dwell Range</dt>
+                        <dd id="summaryDwellRange">2–10 ms</dd>
+                      </div>
+                      <div>
+                        <dt>Scheduler Thresholds</dt>
+                        <dd id="summaryThresholds">0.75 / 0.45</dd>
+                      </div>
+                      <div>
+                        <dt>Scenario</dt>
+                        <dd id="summaryScenario">Behaviour Change</dd>
+                      </div>
+                      <div>
+                        <dt>Bands</dt>
+                        <dd id="summaryBands">10</dd>
+                      </div>
+                      <div>
+                        <dt>Emitters</dt>
+                        <dd id="summaryEmitters">1</dd>
+                      </div>
+                      <div>
+                        <dt>Receiver Capacity</dt>
+                        <dd id="summaryCapacity">1 band</dd>
+                      </div>
+                      <div>
+                        <dt>Duration</dt>
+                        <dd id="summaryDuration">100 ms</dd>
+                      </div>
+                      <div id="summaryDetailRow">
+                        <dt id="summaryDetailTitle">Emitter Parameters</dt>
+                        <dd id="summaryDetail">10 ms period · 5 ms dwell</dd>
+                      </div>
+                      <div id="summaryInitialRow">
+                        <dt id="summaryInitialTitle">Initial Pattern</dt>
+                        <dd id="summaryInitial">B2 &#8594; B6 &#8594; B9</dd>
+                      </div>
+                      <div id="summaryChangeRow">
+                        <dt id="summaryChangeTitle">Change Point</dt>
+                        <dd id="summaryChange">40 ms</dd>
+                      </div>
+                      <div id="summaryNewRow">
+                        <dt id="summaryNewTitle">New Pattern</dt>
+                        <dd id="summaryNew">B2 &#8594; B4 &#8594; B8</dd>
+                      </div>
+                    </dl>
+                  </section>
+                  <section class="config-panel receiver-panel" data-wizard-panel="2">
+                    <div class="config-heading">
+                      <div>
+                        <div class="eyebrow">TUNER LIMITS</div>
+                        <h2>Receiver Constraints</h2>
+                      </div>
+                    </div>
+                    <div class="field-grid two-fields">
+                      <label
+                        >Total Spectrum Bands<input
+                          id="receiverBands"
+                          type="number"
+                          value="10"
+                          min="3"
+                          max="40"
+                          required /></label
+                      ><label
+                        >Instantaneous Capacity<input
+                          id="receiverCapacity"
+                          type="number"
+                          value="1"
+                          min="1"
+                          max="10"
+                          required
+                        /><span class="input-unit">band(s)</span></label
+                      ><label
+                        >Minimum Dwell<input
+                          id="minDwell"
+                          type="number"
+                          value="2"
+                          min="1"
+                          max="10"
+                          required
+                        /><span class="input-unit">ms</span></label
+                      ><label
+                        >Maximum Dwell<input
+                          id="maxDwell"
+                          type="number"
+                          value="10"
+                          min="1"
+                          max="20"
+                          required
+                        /><span class="input-unit">ms</span></label
+                      ><label
+                        >Observation Window<input
+                          id="observationWindow"
+                          type="number"
+                          value="100"
+                          min="20"
+                          max="10000"
+                          required
+                        /><span class="input-unit">ms</span></label
+                      ><label
+                        >Noise Level<input
+                          id="noiseLevel"
+                          type="number"
+                          value="0.05"
+                          min="0"
+                          max="1"
+                          step="0.01"
+                          required /></label
+                      ><label
+                        >False Alarm Probability<input
+                          id="falseAlarm"
+                          type="number"
+                          value="0.01"
+                          min="0"
+                          max="1"
+                          step="0.01"
+                          required
+                      /></label>
+                    </div>
+                    <p class="field-hint">
+                      The receiver can observe only a limited portion of the
+                      available spectrum at each time step. This creates the
+                      scheduling problem addressed by SCAN-GRAPH.
+                    </p>
+                  </section>
+                  <section class="config-panel intelligence-panel" data-wizard-panel="3">
+                    <div class="config-heading">
+                      <div>
+                        <div class="eyebrow">EVIDENCE-GUIDED POLICY</div>
+                        <h2>SCAN-GRAPH Scheduling</h2>
+                      </div>
+                    </div>
+                    <div class="intelligence-list">
+                      <article>
+                        <b>&#10003; Conditional Non-Detection</b>
+                        <p>Interpret a MISS using temporal overlap.</p>
+                      </article>
+                      <article>
+                        <b>&#10003; Online Cross-Band Transition Learning</b>
+                        <p>
+                          Learn relationships between consecutive informative
+                          bands.
+                        </p>
+                      </article>
+                      <article>
+                        <b>&#10003; Confidence-Guided Scheduling</b>
+                        <p>
+                          Prioritize actions using evidence and learned
+                          relationships.
+                        </p>
+                      </article>
+                      <article>
+                        <b>&#10003; Discovery Protection</b>
+                        <p>Keep neglected bands in consideration.</p>
+                      </article>
+                      <article>
+                        <b>&#10003; Evidence Decay</b>
+                        <p>Reduce stale confidence as behaviour changes.</p>
+                      </article>
+                      <article>
+                        <b>&#10003; Behaviour-Change Recovery</b>
+                        <p>
+                          Increase exploration when learned behaviour becomes
+                          unreliable.
+                        </p>
+                      </article>
+                    </div>
+                    <div class="field-grid three-fields scheduler-inputs">
+                      <label
+                        >Exploration Threshold<input
+                          id="explorationThreshold"
+                          type="number"
+                          value="0.75"
+                          min="0"
+                          max="1"
+                          step="0.01" /></label
+                      ><label
+                        >Exploration Rate<input
+                          id="explorationRate"
+                          type="number"
+                          value="0.15"
+                          min="0"
+                          max="1"
+                          step="0.01" /></label
+                      ><label
+                        >Confidence Threshold<input
+                          id="confidenceThreshold"
+                          type="number"
+                          value="0.45"
+                          min="0"
+                          max="1"
+                          step="0.01"
+                      /></label>
+                    </div>
+                  </section>
+                </aside>
+              </div>
+              <div class="config-actions">
+                <button
+                  id="resetConfig"
+                  type="button"
+                  class="button button-secondary"
+                >
+                  Reset Configuration
+                </button>
+                <div>
+                  <button
+                    id="generatePreview"
+                    type="button"
+                    class="button button-secondary"
+                  >
+                    Generate Scenario</button
+                  ><button
+                    id="generateScenario"
+                    type="submit"
+                    class="button button-primary"
+                  >
+                    Start Experiment <span>&#8594;</span>
+                  </button>
+                </div>
+              </div>
+              <div
+                id="generatedScenarioSummary"
+                class="generated-scenario hidden"
+                aria-live="polite"
+              >
+                <div>
+                  <b>SCENARIO GENERATED</b>
+                  <dl>
+                    <div>
+                      <dt>Scenario ID</dt>
+                      <dd id="generatedId">—</dd>
+                    </div>
+                    <div>
+                      <dt>Frequency bands</dt>
+                      <dd id="generatedBands">—</dd>
+                    </div>
+                    <div>
+                      <dt>Emitters</dt>
+                      <dd id="generatedEmitters">—</dd>
+                    </div>
+                    <div>
+                      <dt>Time horizon</dt>
+                      <dd id="generatedHorizon">—</dd>
+                    </div>
+                    <div>
+                      <dt>Time slots</dt>
+                      <dd id="generatedTimeSlots">—</dd>
+                    </div>
+                    <div>
+                      <dt>Ground-truth behaviour</dt>
+                      <dd id="generatedBehaviour">—</dd>
+                    </div>
+                    <div>
+                      <dt>Behaviour-change point</dt>
+                      <dd id="generatedChangePoint">—</dd>
+                    </div>
+                    <div>
+                      <dt>Seed</dt>
+                      <dd id="generatedSeed">—</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+              <div
+                id="scenarioError"
+                class="form-error hidden"
+                role="alert"
+              ></div>
+              <section class="config-panel execution-panel">
+                <div class="config-heading">
+                  <span class="config-index">04</span>
+                  <div>
+                    <div class="eyebrow">EXPERIMENT LIFECYCLE</div>
+                    <h2>Experiment Execution Flow</h2>
+                  </div>
+                </div>
+                <div class="execution-flow">
+                  <div>SCENARIO</div>
+                  <i>&#8595;</i>
+                  <div>EMITTER TIMELINE</div>
+                  <i>&#8595;</i>
+                  <div>RECEIVER OBSERVATION</div>
+                  <i>&#8595;</i>
+                  <div>HIT / MISS</div>
+                  <i>&#8595;</i>
+                  <div>TEMPORAL REASONING</div>
+                  <i>&#8595;</i>
+                  <div>HYPOTHESIS UPDATE</div>
+                  <i>&#8595;</i>
+                  <div>CANDIDATE SCORING</div>
+                  <i>&#8595;</i>
+                  <div>NEXT BAND</div>
+                  <i>&#8595;</i>
+                  <div>TRANSITION GRAPH UPDATE</div>
+                  <i>&#8595;</i>
+                  <div>BEHAVIOUR CHANGE CHECK</div>
+                  <i>&#8595;</i>
+                  <div>EXPLOIT / EXPLORE</div>
+                  <i>&#8595;</i>
+                  <div>NEXT OBSERVATION</div>
+                </div>
+              </section>
+            </form>
+          </section>
+
+          <section id="console" class="view console-view hidden">
+            <div class="page-intro">
+              <div class="eyebrow">
+                LIVE SIMULATION &middot; RECEIVER EXPERIMENT
+              </div>
+              <h1>Receiver Console</h1>
+              <p>
+                Step the receiver through the simulated spectrum and inspect
+                each evidence update.
+              </p>
+            </div>
+            <div id="experimentSummary" class="experiment-summary">
+              <article>
+                <small>EXPERIMENT NAME</small
+                ><b id="consoleExperimentName">No experiment</b>
+              </article>
+              <article>
+                <small>SCENARIO TYPE</small
+                ><b id="consoleScenarioType">Not started</b>
+              </article>
+              <article>
+                <small>CURRENT TIME</small><b id="consoleCurrentTime">0 ms</b>
+              </article>
+              <article>
+                <small>CURRENT BAND</small
+                ><b id="consoleCurrentBand">&mdash;</b>
+              </article>
+              <article>
+                <small>NEXT SCAN</small><b id="consoleNextScan">&mdash;</b>
+              </article>
+              <article>
+                <small>SCHEDULER MODE</small
+                ><b id="consoleSchedulerMode">EXPLORATION</b>
+              </article>
+              <article>
+                <small>GRAPH CONFIDENCE</small
+                ><b id="consoleGraphConfidence">0%</b>
+              </article>
+              <article>
+                <small>EXPLORATION / EXPLOITATION</small
+                ><b id="consoleExploreRatio">&mdash;</b>
+              </article>
+            </div>
+            <div class="toolbar">
+              <label>SEED<input id="seed" type="number" value="7" readonly /></label>
+              <button id="step" class="button button-primary">Step Scan &#8594;</button>
+              <button id="autoRun" class="button button-secondary" aria-pressed="false">Play</button>
+              <button id="pause" class="button button-secondary" disabled>Pause</button>
+              <button id="reset" class="button button-secondary">Reset</button>
+              <label class="speed-control" for="runSpeed">Speed<input id="runSpeed" type="range" min="100" max="900" step="100" value="300"><output id="speedValue" for="runSpeed">3x</output></label>
+              <span id="mode" class="mode">EXPLORATION</span>
+            </div>
+            <div class="layout">
+              <section class="panel spectrum">
+                <div class="panelhead">
+                  <div>
+                    <small>01 / SPECTRUM-TIME OCCUPANCY</small>
+                    <h2>Receiver observation window</h2>
+                  </div>
+                  <span id="window">Awaiting scan</span>
+                </div>
+                <div class="axis">
+                  <span>0 ms</span><span>20</span><span>40</span><span>60</span
+                  ><span>80</span><span>100 ms</span>
+                </div>
+                <div id="bands" role="list" aria-label="Spectrum activity by band"></div>
+                <div class="legend">
+                  <span><i class="emit"></i> Ground-truth activity</span
+                  ><span><i class="prediction"></i> Model prediction</span
+                  ><span><i class="obs"></i> Receiver window</span
+                  ><span><i class="past"></i> HIT</span><span><i class="miss"></i> MISS</span>
+                </div>
+                <div id="timelineMeta" class="timeline-meta"></div>
+                <div id="result" class="result" role="status" aria-live="polite">
+                  Connect to the simulation backend to load an experiment.
+                </div>
+              </section>
+              <aside class="panel decision">
+                <small>02 / CURRENT DECISION</small>
+                <h2>Next scan action</h2>
+                <div id="decision" class="empty">
+                  The scheduler is waiting for a scan.
+                </div>
+                <h3>TOP CANDIDATE ACTIONS</h3>
+                <p id="whyScan" class="why-scan" aria-live="polite">The next scan balances expected evidence, timing, and band coverage.</p>
+                <div id="candidates"></div>
+              </aside>
+            </div>
+            <div class="layout lower">
+              <section class="panel">
+                <small>03 / LIVE REASONING</small>
+                <h2>Conditional non-detection → posterior update</h2>
+                <div id="reasoning" class="reason">
+                  Initial environment state will appear after loading a
+                  scenario.
+                </div>
+                <div id="beliefs" class="beliefs"></div>
+              </section>
+              <section class="panel">
+                <small>04 / DISCOVERY MONITOR</small>
+                <h2>Unexplored bands</h2>
+                <div id="discovery" class="discovery"></div>
+              </section>
+            </div>
+            <section class="panel change">
+              <small>05 / ADAPTIVE MEMORY</small>
+              <div class="changegrid">
+                <div>
+                  <h2>Behaviour-change experiment</h2>
+                  <p>
+                    Ground truth sequence changes at the configured change
+                    point: <b>B2 → B6 → B9</b> becomes <b>B2 → B4 → B8</b>.
+                  </p>
+                </div>
+                <div>
+                  <div id="changeStatus" class="change-status">
+                    Awaiting scenario
+                  </div>
+                  <div id="events">
+                    No surprise detected. Evidence is accumulated from receiver
+                    scans.
+                  </div>
+                  <p>
+                    <b>Learned transitions:</b>
+                    <span id="transitions">None</span>
+                  </p>
+                </div>
+              </div>
+              <div id="transitionGraph" class="transition-graph">
+                <p>
+                  Cross-band transition edges appear after sequential HIT
+                  observations.
+                </p>
+              </div>
+            </section>
+          </section>
+          <section id="hypotheses" class="view hidden">
+            <div class="page-intro">
+              <div class="eyebrow">RESEARCH VIEW / BELIEF STATE</div>
+              <h1>Hypothesis Engine</h1>
+              <p>
+                Posterior beliefs and observation history from the active
+                receiver experiment.
+              </p>
+            </div>
+            <div id="hypothesisEmpty" class="panel empty-research hidden">
+              <h2>NO ACTIVE EXPERIMENT</h2>
+              <p>
+                Create and start an experiment from Scenario Configuration to
+                generate research evidence.
+              </p>
+              <button class="button button-primary" data-tab="scenario">
+                Create Experiment <span>→</span>
+              </button>
+            </div>
+            <div id="hypothesisContent" class="research-content hidden">
+              <div class="research-metrics">
+                <article>
+                  <small>ACTIVE HYPOTHESES</small><b id="hypActive">0</b>
+                </article>
+                <article>
+                  <small>SUPPORTED</small><b id="hypSupported">0</b>
+                </article>
+                <article>
+                  <small>WEAKENED</small><b id="hypWeakened">0</b>
+                </article>
+                <article>
+                  <small>EXCLUDED</small><b id="hypExcluded">0</b>
+                </article>
+              </div>
+              <section class="panel research-panel">
+                <div class="panelhead">
+                  <div>
+                    <h2>Hypothesis and posterior state</h2>
+                    <p>
+                      Choose a row to inspect its evidence and posterior
+                      history.
+                    </p>
+                  </div>
+                </div>
+                <div class="table-tools"><label>Filter hypotheses<input id="hypSearch" type="search" placeholder="Band or hypothesis ID"></label><label>Status<select id="hypStatusFilter"><option value="all">All statuses</option><option>Supported</option><option>Weakened</option><option>Ruled out</option><option>Stale</option></select></label></div>
+                <div id="hypTable" class="table-wrap"></div>
+              </section>
+              <div class="research-columns">
+                <section class="panel research-panel">
+                  <h2>Hypothesis detail</h2>
+                  <div id="hypDetail" class="research-detail"></div>
+                </section>
+                <section class="panel research-panel">
+                  <h2>Posterior history</h2>
+                  <div id="posteriorChart" class="posterior-chart"></div>
+                </section>
+              </div>
+              <section class="panel research-panel">
+                <h2>Research idea: conditional non-detection</h2>
+                <p class="research-callout">
+                  A MISS does not by itself mean an emitter is absent.
+                  Non-detection strength depends on whether the emitter was
+                  expected to overlap the observation window.
+                </p>
+                <div id="hypUpdateLog" class="evidence-log"></div>
+              </section>
+            </div>
+          </section>
+          <section id="certificate" class="view hidden">
+            <div class="page-intro">
+              <div class="eyebrow">RESEARCH EVIDENCE / SESSION STATE</div>
+              <h1>Evidence Certificate</h1>
+              <p>
+                Auditable observation-to-decision reasoning for the current
+                experiment.
+              </p>
+            </div>
+            <div id="certificateEmpty" class="panel empty-research hidden">
+              <h2>NO ACTIVE EXPERIMENT</h2>
+              <p>
+                Create and start an experiment from Scenario Configuration to
+                generate research evidence.
+              </p>
+              <button class="button button-primary" data-tab="scenario">
+                Create Experiment <span>→</span>
+              </button>
+            </div>
+            <div id="certificateContent" class="research-content hidden">
+              <div
+                id="certificateHeader"
+                class="research-metrics certificate-metrics"
+              ></div>
+              <section class="panel research-panel certificate-band-panel"><div class="panelhead"><div><h2>Band-level plausibility</h2><p>Each bar separates hypotheses ruled out by evidence from those still plausible.</p></div><div class="certificate-actions"><button id="printCertificate" class="button button-secondary">Print / Save as PDF</button></div></div><div class="certificate-band-legend"><span><i class="ruled-swatch"></i> Ruled out</span><span><i class="plausible-swatch"></i> Still plausible</span></div><div id="certificateBars" class="certificate-bars"></div></section>
+              <section class="panel research-panel">
+                <div class="panelhead">
+                  <div>
+                    <h2>Observation evidence</h2>
+                    <p>Measured receiver observations and modeled overlap.</p>
+                  </div>
+                  <button id="export" class="button button-secondary">
+                    Download JSON
+                  </button>
+                </div>
+                <div id="certificateTable" class="table-wrap"></div>
+              </section>
+              <div class="research-columns">
+                <section class="panel research-panel">
+                  <h2>Evidence reasoning</h2>
+                  <div id="evidenceReasoning" class="reason-chain"></div>
+                </section>
+                <section class="panel research-panel">
+                  <h2>What did this observation rule out?</h2>
+                  <div id="exclusionEvidence"></div>
+                </section>
+              </div>
+              <div class="research-columns">
+                <section class="panel research-panel">
+                  <h2>Current belief state</h2>
+                  <div id="certificateBeliefs" class="belief-state-list"></div>
+                </section>
+                <section class="panel research-panel">
+                  <h2>Certificate status</h2>
+                  <div
+                    id="certificateVerdict"
+                    class="certificate-verdict"
+                  ></div>
+                </section>
+              </div>
+              <section class="panel research-panel">
+                <h2>Decision trace</h2>
+                <div id="decisionTrace" class="evidence-log"></div>
+              </section>
+              <section class="panel research-panel">
+                <h2>Why was the next band selected?</h2>
+                <div id="auditableDecision"></div>
+              </section>
+            </div>
+          </section>
+          <section id="experiments" class="view hidden">
+            <div class="page-intro">
+              <div class="eyebrow">
+                CONTROLLED COMPARISON / SAME SEED &amp; GROUND TRUTH
+              </div>
+              <h1>Baseline Experiments</h1>
+              <p>
+                Compare scheduling strategies under the same scenario, seed and
+                receiver constraints.
+              </p>
+            </div>
+            <div id="baselineEmpty" class="panel empty-research hidden">
+              <h2>NO ACTIVE EXPERIMENT</h2>
+              <p>
+                Create and start an experiment from Scenario Configuration to
+                generate research evidence.
+              </p>
+              <button class="button button-primary" data-tab="scenario">
+                Create Experiment <span>→</span>
+              </button>
+            </div>
+            <div id="baselineContent" class="research-content hidden">
+              <section class="panel research-panel">
+                <h2>Experiment conditions</h2>
+                <div
+                  id="baselineConditions"
+                  class="research-metrics conditions-grid"
+                ></div>
+              </section>
+              <section class="panel research-panel">
+                <h2>Select baseline methods</h2>
+                <div id="baselineMethods" class="method-grid"></div>
+                <p class="field-hint">
+                  Each selected method receives the same scenario, seed set,
+                  simulation horizon and receiver constraints.
+                </p>
+                <button
+                  id="runexp"
+                  class="button button-primary run-comparison"
+                >
+                  Run Controlled Comparison
+                </button>
+                <div id="baselineProgress" class="baseline-progress hidden" role="status" aria-live="polite"><div><b id="baselineProgressLabel">Preparing paired runs</b><span id="baselineEta">Estimated time: calculating...</span></div><progress id="baselineProgressBar" max="100" value="0"></progress></div>
+              </section>
+              <div id="experimentResults" class="research-content"></div>
+              <button id="exportBaselineCsv" class="button button-secondary hidden">Export CSV</button>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

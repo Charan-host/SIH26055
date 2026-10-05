@@ -1,0 +1,16 @@
+{
+  "name": "scan-graph-console",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@fontsource-variable/dm-sans": "^5.3.0",
+    "@fontsource-variable/manrope": "^5.3.0",
+    "dompurify": "^3.4.16",
+    "vite": "^6.3.5"
+  }
+}
